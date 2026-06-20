@@ -1,0 +1,79 @@
+version: "3.9"
+
+services:
+  # ── API FastAPI ────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prudential_api
+    ports:
+      - "8000:8000"
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - neo4j
+      - chromadb
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - prudential_net
+
+  # ── Dash Dashboard ─────────────────────────────────────────
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prudential_dash
+    ports:
+      - "8050:8050"
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - api
+    command: python dashboard/app.py
+    networks:
+      - prudential_net
+
+  # ── Neo4j (Knowledge Graph) ────────────────────────────────
+  neo4j:
+    image: neo4j:5.20-community
+    container_name: prudential_neo4j
+    ports:
+      - "7474:7474"   # Browser
+      - "7687:7687"   # Bolt
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-prudential123}
+      NEO4J_PLUGINS: '["apoc"]'
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    networks:
+      - prudential_net
+
+  # ── MinIO (Object Storage) ──────────────────────────────────
+  minio:
+    image: minio/minio
+    container_name: prudential_minio
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-senha4321}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - prudential_net
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  chroma_data:
+  minio_data:
+
+networks:
+  prudential_net:
+    driver: bridge

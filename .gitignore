@@ -1,0 +1,38 @@
+# Secrets and Environment
+.env
+.env.local
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+skillspector/skillspector_env/
+
+# Data and Large Files
+data/
+agent_knowledge_base/
+*.csv
+*.parquet
+*.jsonl
+*.sql
+*.sqlite
+security_report.json
+scan_report.json
+
+# OS and IDEs
+.DS_Store
+.vscode/
+.idea/
+
+# Logs and Temporary files
+*.log
+tmp/
+
