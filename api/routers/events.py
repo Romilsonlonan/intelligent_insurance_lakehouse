@@ -1,5 +1,5 @@
 """Router de Eventos / HITL — aprovação e rejeição humana de ações de IA."""
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 
 router = APIRouter()
